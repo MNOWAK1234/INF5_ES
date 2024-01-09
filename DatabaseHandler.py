@@ -8,11 +8,13 @@ def create_connection():
 
 def create_table(conn):
     cursor = conn.cursor()
+    #cursor.execute(f'DROP TABLE IF EXISTS access_logs')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS access_logs (
             worker_id INTEGER,
             worker_name TEXT,
-            timestamp TEXT
+            timestamp TEXT,
+            status TEXT  -- Adding status column to track entry/exit
         )
     ''')
     conn.commit()
@@ -20,13 +22,18 @@ def create_table(conn):
 def insert_sample_records(conn):
     cursor = conn.cursor()
     sample_data = [
-        (1, 'Worker1', str(datetime.now())),
-        (2, 'Worker2', str(datetime.now())),
-        (3, 'Worker3', str(datetime.now())),
-        (4, 'Worker4', str(datetime.now())),
-        (5, 'Worker5', str(datetime.now()))
+        (1, 'Worker1', str(datetime.now()), 'ENTER'),
+        (2, 'Worker2', str(datetime.now()), 'ENTER'),
+        (3, 'Worker3', str(datetime.now()), 'ENTER'),
+        (4, 'Worker4', str(datetime.now()), 'ENTER'),
+        (5, 'Worker5', str(datetime.now()), 'ENTER'),
+        (1, 'Worker1', str(datetime.now()), 'LEAVE'),
+        (2, 'Worker2', str(datetime.now()), 'LEAVE'),
+        (3, 'Worker3', str(datetime.now()), 'LEAVE'),
+        (4, 'Worker4', str(datetime.now()), 'LEAVE'),
+        (5, 'Worker5', str(datetime.now()), 'LEAVE')
     ]
-    cursor.executemany('INSERT INTO access_logs (worker_id, worker_name, timestamp) VALUES (?, ?, ?)', sample_data)
+    cursor.executemany('INSERT INTO access_logs (worker_id, worker_name, timestamp, status) VALUES (?, ?, ?, ?)', sample_data)
     conn.commit()
 
 def fetch_all_workers(conn):
