@@ -1,0 +1,93 @@
+import sqlite3
+from flask import Flask, jsonify
+from datetime import datetime
+
+app = Flask(__name__)
+DB_NAME = 'workers.db'
+
+# Database connection function
+def create_connection():
+    return sqlite3.connect(DB_NAME)
+
+@app.route('/get_all_data')
+def get_all_data():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM access_logs')
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify(rows)
+
+@app.route('/get_worker_data/<username>')
+def get_worker_data(username):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM access_logs WHERE worker_name = ?', (username,))
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify(rows)
+
+@app.route('/get_data_by_timestamp/<start_time>/<end_time>')
+def get_data_by_timestamp(start_time, end_time):
+    if end_time == '':  # Check if end_time is empty
+        end_time = str(datetime.now())  # Replace with current timestamp if empty
+    
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM access_logs WHERE timestamp >= ? AND timestamp <= ?', (start_time, end_time))
+    data_within_range = cursor.fetchall()
+    conn.close()
+
+    return jsonify(data_within_range)
+
+@app.route('/get_data_by_worker_and_timestamps/<worker_name>/<start_time>/<end_time>')
+def get_data_by_worker_and_timestamps(worker_name, start_time, end_time):
+    if end_time == '':  # Check if end_time is empty
+        end_time = str(datetime.now())  # Replace with current timestamp if empty
+    
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM access_logs WHERE worker_name = ? AND timestamp >= ? AND timestamp <= ?', (worker_name, start_time, end_time))
+    data_within_range = cursor.fetchall()
+    conn.close()
+
+    return jsonify(data_within_range)
+
+@app.route('/get_workers_at_work/<datestamp>')
+def get_workers_at_work(datestamp):
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    # Extract the date from the datestamp (assuming datestamp is in 'YYYY-MM-DD' format)
+    date = datestamp.split()[0] if ' ' in datestamp else datestamp
+
+    # Retrieve workers at work on the specified day (assuming timestamp is in 'YYYY-MM-DD HH:MM:SS' format)
+    cursor.execute("SELECT DISTINCT worker_name FROM access_logs WHERE timestamp LIKE ? AND (status = 'ENTRY' OR status = 'LEAVE')", (f"{date}%",))
+    workers_at_work = cursor.fetchall()
+
+    conn.close()
+
+    return jsonify(workers_at_work)
+
+@app.route('/count_appearances_by_timestamp/<start_time>/<end_time>')
+def count_appearances_by_timestamp(start_time, end_time):
+    if end_time == '':  # Check if end_time is empty
+        end_time = str(datetime.now())  # Replace with current timestamp if empty
+    
+    conn = create_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT worker_name, COUNT(*) as appearance_count 
+        FROM access_logs 
+        WHERE timestamp >= ? AND timestamp <= ? AND status = 'ENTER'
+        GROUP BY worker_name
+    ''', (start_time, end_time))
+    
+    worker_appearances = cursor.fetchall()
+    conn.close()
+
+    return jsonify(worker_appearances)
+
+if __name__ == "__main__":
+    app.run(debug=True)
