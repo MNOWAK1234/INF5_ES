@@ -10,7 +10,8 @@ def create_table(conn):
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS access_logs (
-            worker_id TEXT,
+            worker_id INTEGER,
+            worker_name TEXT,
             timestamp TEXT
         )
     ''')
@@ -19,13 +20,13 @@ def create_table(conn):
 def insert_sample_records(conn):
     cursor = conn.cursor()
     sample_data = [
-        ('Worker1', str(datetime.now())),
-        ('Worker2', str(datetime.now())),
-        ('Worker3', str(datetime.now())),
-        ('Worker4', str(datetime.now())),
-        ('Worker5', str(datetime.now()))
+        (1, 'Worker1', str(datetime.now())),
+        (2, 'Worker2', str(datetime.now())),
+        (3, 'Worker3', str(datetime.now())),
+        (4, 'Worker4', str(datetime.now())),
+        (5, 'Worker5', str(datetime.now()))
     ]
-    cursor.executemany('INSERT INTO access_logs (worker_id, timestamp) VALUES (?, ?)', sample_data)
+    cursor.executemany('INSERT INTO access_logs (worker_id, worker_name, timestamp) VALUES (?, ?, ?)', sample_data)
     conn.commit()
 
 def fetch_all_workers(conn):
