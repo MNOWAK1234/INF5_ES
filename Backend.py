@@ -1,8 +1,10 @@
 import sqlite3
 from flask import Flask, jsonify
+from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:5173")
 DB_NAME = 'workers.db'
 
 # Database connection function
