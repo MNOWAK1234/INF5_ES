@@ -1,6 +1,15 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import ApiService from './ApiService';
-import { StyledTableContainer, StyledTable, StyledTableCell, StyledTableHeader } from './StyledTable';
+import {
+  StyledBackground,
+  StyledTableContainer,
+  StyledTable,
+  StyledTableCell,
+  StyledTableHeader,
+  StyledTitle,
+  StyledTableTitle,
+} from './StyledTable';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -32,28 +41,34 @@ function App() {
   }, []);
 
   return (
-    <StyledTableContainer>
-      <StyledTable>
-        <thead>
-          <tr>
-            <StyledTableHeader>Worker ID</StyledTableHeader>
-            <StyledTableHeader>Name</StyledTableHeader>
-            <StyledTableHeader>Timestamp</StyledTableHeader>
-            <StyledTableHeader>Status</StyledTableHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index}>
-              <StyledTableCell>{item[0]}</StyledTableCell>
-              <StyledTableCell>{item[1]}</StyledTableCell>
-              <StyledTableCell>{item[2]}</StyledTableCell>
-              <StyledTableCell>{item[3]}</StyledTableCell>
+    <StyledBackground>
+      <div>
+        <StyledTitle>Administration Panel</StyledTitle>
+        <StyledTableTitle>Access Logs</StyledTableTitle>
+        <StyledTableContainer>
+          <StyledTable>
+          <thead>
+            <tr>
+              <StyledTableHeader>ID</StyledTableHeader>
+              <StyledTableHeader>Name</StyledTableHeader>
+              <StyledTableHeader>Timestamp</StyledTableHeader>
+              <StyledTableHeader>Status</StyledTableHeader>
             </tr>
-          ))}
-        </tbody>
-      </StyledTable>
-    </StyledTableContainer>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={index}>
+                <StyledTableCell>{item[0]}</StyledTableCell>
+                <StyledTableCell>{item[1]}</StyledTableCell>
+                <StyledTableCell>{item[2]}</StyledTableCell>
+                <StyledTableCell>{item[3]}</StyledTableCell>
+              </tr>
+            ))}
+          </tbody>
+        </StyledTable>
+        </StyledTableContainer>
+      </div>
+    </StyledBackground>
   );
 }
 
