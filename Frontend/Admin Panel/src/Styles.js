@@ -1,4 +1,3 @@
-// StyledTable.js
 import styled from 'styled-components';
 
 export const StyledTableContainer = styled.div`
@@ -34,8 +33,9 @@ export const StyledTitle = styled.h1`
   text-align: center;
   color: white;
   font-size: 2.5em;
-  margin-bottom: 20px;
-  padding-top: 5%;
+  padding-top: 2%;
+  background-color: #333;
+  margin: 0;
 `;
 
 export const StyledTableTitle = styled.h2`
@@ -48,4 +48,23 @@ export const StyledTableTitle = styled.h2`
 export const StyledBackground = styled.div`
   background: linear-gradient(135deg, #667eea, #764ba2);
   min-height: 100vh;
+`;
+
+export const StyledNavBar = styled.nav`
+  background-color: #333;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+`;
+
+export const StyledNavLink = styled.a`
+  color: white;
+  text-decoration: none;
+  margin: 0 20px;
+  cursor: pointer;
+  transition: color 0.3s;
+
+  &:hover {
+    color: lightgray;
+  }
 `;

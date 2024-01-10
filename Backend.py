@@ -15,7 +15,7 @@ def create_connection():
 def get_all_data():
     conn = create_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM access_logs')
+    cursor.execute('SELECT * FROM access_logs ORDER BY timestamp DESC')
     rows = cursor.fetchall()
     conn.close()
     return jsonify(rows)
