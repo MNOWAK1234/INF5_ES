@@ -36,7 +36,7 @@ function App() {
       <StyledTable>
         <thead>
           <tr>
-            <StyledTableHeader>ID</StyledTableHeader>
+            <StyledTableHeader>Worker ID</StyledTableHeader>
             <StyledTableHeader>Name</StyledTableHeader>
             <StyledTableHeader>Timestamp</StyledTableHeader>
             <StyledTableHeader>Status</StyledTableHeader>
