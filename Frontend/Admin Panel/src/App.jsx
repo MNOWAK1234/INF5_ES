@@ -1,40 +1,59 @@
-import React, { useEffect } from 'react';
-import ApiService from './ApiService'; // Import the ApiService
+import React, { useState, useEffect } from 'react';
+import ApiService from './ApiService';
+import { StyledTableContainer, StyledTable, StyledTableCell, StyledTableHeader } from './StyledTable';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  // Example usage of the ApiService functions
+  const [data, setData] = useState([]);
+
+  // Function to fetch data from the backend
+  const fetchData = async () => {
+    try {
+      const allData = await ApiService.getAllData();
+      setData(allData);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  // Function to refresh data periodically
   useEffect(() => {
-    // Fetch all data
-    const fetchData = async () => {
-      try {
-        const allData = await ApiService.getAllData();
-        console.log('All data:', allData);
-      } catch (error) {
-        console.error('Error fetching all data:', error.message);
-      }
-    };
+    const interval = setInterval(() => {
+      fetchData();
+    }, 1000); // Refresh data every second
+
+    // Cleanup function
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch data when the component mounts
+  useEffect(() => {
     fetchData();
-
-    // Fetch worker data for a specific username
-    const fetchWorkerData = async () => {
-      const username = 'exampleUsername';
-      try {
-        const workerData = await ApiService.getWorkerData(username);
-        console.log('Worker data:', workerData);
-      } catch (error) {
-        console.error('Error fetching worker data:', error.message);
-      }
-    };
-    fetchWorkerData();
-
-    // You can similarly call other functions from the ApiService here...
   }, []);
 
   return (
-    <div>
-      <h1>Using ApiService Functions</h1>
-      {/* Your JSX content goes here */}
-    </div>
+    <StyledTableContainer>
+      <StyledTable>
+        <thead>
+          <tr>
+            <StyledTableHeader>ID</StyledTableHeader>
+            <StyledTableHeader>Name</StyledTableHeader>
+            <StyledTableHeader>Timestamp</StyledTableHeader>
+            <StyledTableHeader>Status</StyledTableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <StyledTableCell>{item[0]}</StyledTableCell>
+              <StyledTableCell>{item[1]}</StyledTableCell>
+              <StyledTableCell>{item[2]}</StyledTableCell>
+              <StyledTableCell>{item[3]}</StyledTableCell>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
+    </StyledTableContainer>
   );
 }
 
