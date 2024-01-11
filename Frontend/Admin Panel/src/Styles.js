@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 export const StyledTableContainer = styled.div`
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -57,7 +58,7 @@ export const StyledNavBar = styled.nav`
   justify-content: center;
 `;
 
-export const StyledNavLink = styled.a`
+export const StyledNavLink = styled(Link)`
   color: white;
   text-decoration: none;
   margin: 0 20px;
