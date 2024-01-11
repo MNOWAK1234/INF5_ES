@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// DataByWorkerAndTimestamp.js
+
+import React, { useState } from 'react';
 import ApiService from './ApiService';
 import {
   StyledTableTitle,
@@ -6,43 +8,81 @@ import {
   StyledTable,
   StyledTableHeader,
   StyledTableCell,
+  inputButtonContainerStyle,
+  inputStyle,
 } from './Styles';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function DataByWorkerAndTimestamps() {
-  const [data, setData] = useState([]);
-  const [entriesToShow, setEntriesToShow] = useState(4);
-  const [totalEntries, setTotalEntries] = useState(0);
+function DataByWorkerAndTimestamp() {
+  const [workerName, setWorkerName] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [dataEntries, setDataEntries] = useState([]);
+  const [error, setError] = useState([]);
 
-  const fetchData = async () => {
-    try {
-      const allData = await ApiService.getAllData();
-      setData(allData);
-      setTotalEntries(allData.length);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-    }
+  const handleWorkerNameChange = (event) => {
+    setWorkerName(event.target.value);
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
+  const handleStartTimeChange = (event) => {
+    setStartTime(event.target.value);
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  const handleEndTimeChange = (event) => {
+    setEndTime(event.target.value);
+  };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const loadMoreEntries = () => {
-    setEntriesToShow(entriesToShow + 2);
+  const handleFetchData = async () => {
+    try {
+      const response = await ApiService.getDataByWorkerAndTimestamps(workerName, startTime, endTime);
+      setDataEntries(response);
+      setError(null); // Clear any previous errors
+    } catch (error) {
+      setError('Failed to get data by worker and timestamps');
+      setDataEntries([]); // Clear dataEntries on error
+    }
   };
 
   return (
     <div>
-      <StyledTableTitle>Access Logs</StyledTableTitle>
+      <div style={inputButtonContainerStyle}>
+        <label>
+          Worker's Name:
+          <input
+            type="text"
+            value={workerName}
+            onChange={handleWorkerNameChange}
+            style={inputStyle}
+          />
+        </label>
+        <label>
+          Start Timestamp:
+          <input
+            type="datetime-local"
+            value={startTime}
+            onChange={handleStartTimeChange}
+            style={inputStyle}
+          />
+        </label>
+        <label>
+          End Timestamp:
+          <input
+            type="datetime-local"
+            value={endTime}
+            onChange={handleEndTimeChange}
+            style={inputStyle}
+          />
+        </label>
+        <button onClick={handleFetchData}>Search</button>
+      </div>
+
+      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+
+      <StyledTableTitle>
+        {workerName && startTime && endTime
+          ? `Data for ${workerName} from ${startTime.replace('T', ' ')} to ${endTime.replace('T', ' ')}`
+          : 'Data By Worker and Timestamps'}
+      </StyledTableTitle>
       <StyledTableContainer>
         <StyledTable>
           <thead>
@@ -54,7 +94,7 @@ function DataByWorkerAndTimestamps() {
             </tr>
           </thead>
           <tbody>
-            {data.slice(0, entriesToShow).map((item, index) => (
+            {dataEntries.map((item, index) => (
               <tr key={index}>
                 <StyledTableCell>{item[0]}</StyledTableCell>
                 <StyledTableCell>{item[1]}</StyledTableCell>
@@ -65,13 +105,8 @@ function DataByWorkerAndTimestamps() {
           </tbody>
         </StyledTable>
       </StyledTableContainer>
-      {entriesToShow < totalEntries && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={loadMoreEntries}>Get 2 More</button>
-        </div>
-      )}
     </div>
   );
 }
 
-export default DataByWorkerAndTimestamps;
+export default DataByWorkerAndTimestamp;

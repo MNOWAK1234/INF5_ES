@@ -37,7 +37,7 @@ function WorkerData() {
     <div>
       <div style={inputButtonContainerStyle}>
         <label>
-          Enter Worker's Name:
+          Worker's Name:
           <input
             type="text"
             value={workerName}
