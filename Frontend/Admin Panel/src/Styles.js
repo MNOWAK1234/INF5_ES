@@ -69,3 +69,20 @@ export const StyledNavLink = styled(Link)`
     color: lightgray;
   }
 `;
+
+export const inputButtonContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  margin: '20px',
+};
+
+export const inputStyle = {
+  marginBottom: '10px',
+  marginLeft: '10px',
+  marginRight: '10px',
+  padding: '10px',
+  borderRadius: '5px',
+  border: '1px solid #ccc',
+  width: '200px',
+};

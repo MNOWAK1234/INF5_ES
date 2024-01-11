@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// WorkerData.js
+
+import React, { useState } from 'react';
 import ApiService from './ApiService';
 import {
   StyledTableTitle,
@@ -6,43 +8,50 @@ import {
   StyledTable,
   StyledTableHeader,
   StyledTableCell,
+  inputButtonContainerStyle,
+  inputStyle,
 } from './Styles';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function WorkerData() {
-  const [data, setData] = useState([]);
-  const [entriesToShow, setEntriesToShow] = useState(4);
-  const [totalEntries, setTotalEntries] = useState(0);
+  const [workerName, setWorkerName] = useState('');
+  const [workerEntries, setWorkerEntries] = useState([]);
+  const [error, setError] = useState([]);
 
-  const fetchData = async () => {
-    try {
-      const allData = await ApiService.getAllData();
-      setData(allData);
-      setTotalEntries(allData.length);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-    }
+  const handleInputChange = (event) => {
+    setWorkerName(event.target.value);
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const loadMoreEntries = () => {
-    setEntriesToShow(entriesToShow + 2);
+  const handleFetchData = async () => {
+    try {
+      const response = await ApiService.getWorkerData(workerName);
+      setWorkerEntries(response);
+      setError(null); // Clear any previous errors
+    } catch (error) {
+      setError('Failed to fetch worker data');
+      setWorkerEntries([]); // Clear workerEntries on error
+    }
   };
 
   return (
     <div>
-      <StyledTableTitle>Access Logs</StyledTableTitle>
+      <div style={inputButtonContainerStyle}>
+        <label>
+          Enter Worker's Name:
+          <input
+            type="text"
+            value={workerName}
+            onChange={handleInputChange}
+            style={inputStyle}
+          />
+        </label>
+        <button onClick={handleFetchData}>Search</button>
+      </div>
+
+      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+
+
+      <StyledTableTitle>{workerName ? `Worker Data for ${workerName}` : 'Worker Data'}</StyledTableTitle>
       <StyledTableContainer>
         <StyledTable>
           <thead>
@@ -54,7 +63,7 @@ function WorkerData() {
             </tr>
           </thead>
           <tbody>
-            {data.slice(0, entriesToShow).map((item, index) => (
+            {workerEntries.map((item, index) => (
               <tr key={index}>
                 <StyledTableCell>{item[0]}</StyledTableCell>
                 <StyledTableCell>{item[1]}</StyledTableCell>
@@ -65,11 +74,6 @@ function WorkerData() {
           </tbody>
         </StyledTable>
       </StyledTableContainer>
-      {entriesToShow < totalEntries && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={loadMoreEntries}>Get 2 More</button>
-        </div>
-      )}
     </div>
   );
 }
