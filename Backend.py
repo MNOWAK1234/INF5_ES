@@ -84,6 +84,7 @@ def count_appearances_by_timestamp(start_time, end_time):
         FROM access_logs 
         WHERE timestamp >= ? AND timestamp <= ? AND status = 'ENTER'
         GROUP BY worker_name
+        ORDER BY appearance_count DESC
     ''', (start_time, end_time))
     
     worker_appearances = cursor.fetchall()
