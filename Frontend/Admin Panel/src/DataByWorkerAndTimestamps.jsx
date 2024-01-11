@@ -1,5 +1,3 @@
-// DataByWorkerAndTimestamp.js
-
 import React, { useState } from 'react';
 import ApiService from './ApiService';
 import {

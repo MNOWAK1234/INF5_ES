@@ -10,39 +10,29 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function History() {
-  const [data, setData] = useState([]);
-  const [entriesToShow, setEntriesToShow] = useState(4);
-  const [totalEntries, setTotalEntries] = useState(0);
-
-  const fetchData = async () => {
-    try {
-      const allData = await ApiService.getAllData();
-      setData(allData);
-      setTotalEntries(allData.length);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-    }
-  };
+  const [historyData, setHistoryData] = useState([]);
+  const [error, setError] = useState([]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
+    const fetchHistoryData = async () => {
+      try {
+        const response = await ApiService.getAllData();
+        setHistoryData(response);
+        setError(null); // Clear any previous errors
+      } catch (error) {
+        setError('Failed to fetch history data');
+        setHistoryData([]); // Clear historyData on error
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const loadMoreEntries = () => {
-    setEntriesToShow(entriesToShow + 2);
-  };
+    fetchHistoryData();
+  }, []); // Empty dependency array ensures this effect runs once on component mount
 
   return (
     <div>
-      <StyledTableTitle>Access Logs</StyledTableTitle>
+      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+
+      <StyledTableTitle>Entry History</StyledTableTitle>
       <StyledTableContainer>
         <StyledTable>
           <thead>
@@ -54,7 +44,7 @@ function History() {
             </tr>
           </thead>
           <tbody>
-            {data.slice(0, entriesToShow).map((item, index) => (
+            {historyData.map((item, index) => (
               <tr key={index}>
                 <StyledTableCell>{item[0]}</StyledTableCell>
                 <StyledTableCell>{item[1]}</StyledTableCell>
@@ -65,11 +55,6 @@ function History() {
           </tbody>
         </StyledTable>
       </StyledTableContainer>
-      {entriesToShow < totalEntries && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={loadMoreEntries}>Get 2 More</button>
-        </div>
-      )}
     </div>
   );
 }
