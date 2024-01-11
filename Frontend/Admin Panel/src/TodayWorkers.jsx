@@ -1,3 +1,5 @@
+// WorkersAtWork.js
+
 import React, { useState, useEffect } from 'react';
 import ApiService from './ApiService';
 import {
@@ -9,69 +11,50 @@ import {
 } from './Styles';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function TodayWorkers() {
-  const [data, setData] = useState([]);
-  const [entriesToShow, setEntriesToShow] = useState(4);
-  const [totalEntries, setTotalEntries] = useState(0);
+function WorkersAtWork() {
+  const [workersAtWork, setWorkersAtWork] = useState([]);
+  const [error, setError] = useState([]);
 
-  const fetchData = async () => {
-    try {
-      const allData = await ApiService.getAllData();
-      setData(allData);
-      setTotalEntries(allData.length);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-    }
-  };
+  const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
+    const fetchWorkersAtWork = async () => {
+      try {
+        const response = await ApiService.getWorkersAtWork(currentDate);
+        setWorkersAtWork(response);
+        setError(null); // Clear any previous errors
+      } catch (error) {
+        setError('Failed to get workers at work');
+        setWorkersAtWork([]); // Clear workersAtWork on error
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const loadMoreEntries = () => {
-    setEntriesToShow(entriesToShow + 2);
-  };
+    fetchWorkersAtWork();
+  }, []); // Empty dependency array ensures this effect runs once on component mount
 
   return (
     <div>
-      <StyledTableTitle>Access Logs</StyledTableTitle>
+      {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
+
+      <StyledTableTitle>{`Workers at Work on ${currentDate}`}</StyledTableTitle>
       <StyledTableContainer>
         <StyledTable>
           <thead>
             <tr>
-              <StyledTableHeader>ID</StyledTableHeader>
               <StyledTableHeader>Name</StyledTableHeader>
-              <StyledTableHeader>Timestamp</StyledTableHeader>
-              <StyledTableHeader>Status</StyledTableHeader>
             </tr>
           </thead>
           <tbody>
-            {data.slice(0, entriesToShow).map((item, index) => (
+            {workersAtWork.map((worker, index) => (
               <tr key={index}>
-                <StyledTableCell>{item[0]}</StyledTableCell>
-                <StyledTableCell>{item[1]}</StyledTableCell>
-                <StyledTableCell>{item[2]}</StyledTableCell>
-                <StyledTableCell>{item[3]}</StyledTableCell>
+                <StyledTableCell>{worker}</StyledTableCell>
               </tr>
             ))}
           </tbody>
         </StyledTable>
       </StyledTableContainer>
-      {entriesToShow < totalEntries && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={loadMoreEntries}>Get 2 More</button>
-        </div>
-      )}
     </div>
   );
 }
 
-export default TodayWorkers;
+export default WorkersAtWork;
