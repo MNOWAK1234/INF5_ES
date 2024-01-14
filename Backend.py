@@ -4,7 +4,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:5173")
+CORS(app)
 DB_NAME = 'workers.db'
 
 # Database connection function
@@ -62,9 +62,9 @@ def get_workers_at_work(datestamp):
 
     # Extract the date from the datestamp (assuming datestamp is in 'YYYY-MM-DD' format)
     date = datestamp.split()[0] if ' ' in datestamp else datestamp
-
-    # Retrieve workers at work on the specified day (assuming timestamp is in 'YYYY-MM-DD HH:MM:SS' format)
-    cursor.execute("SELECT DISTINCT worker_name FROM access_logs WHERE timestamp LIKE ? AND (status = 'ENTRY' OR status = 'LEAVE')", (f"{date}%",))
+    # Retrieve workers at work on the specified date (ignoring the time)
+    cursor.execute("SELECT DISTINCT worker_name FROM access_logs WHERE SUBSTR(timestamp, 1, 10) LIKE ?", (date,))
+    
     workers_at_work = cursor.fetchall()
 
     conn.close()
@@ -93,4 +93,4 @@ def count_appearances_by_timestamp(start_time, end_time):
     return jsonify(worker_appearances)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
